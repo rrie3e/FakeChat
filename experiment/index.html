@@ -4,9 +4,13 @@
         <!-- Title shown in tab -->
         <title>University of Sussex - Research</title>
 
-         <!-- Load JsPsych -->
+        <!-- Load JsPsych -->
         <script src="https://unpkg.com/jspsych@8.2.2"></script>
-        <link href="https://unpkg.com/jspsych@8.2.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+        <link
+            href="https://unpkg.com/jspsych@8.2.2/css/jspsych.css"
+            rel="stylesheet"
+            type="text/css"
+        />
 
         <!-- Load plugins -->
         <script src="https://unpkg.com/@jspsych/plugin-browser-check@2.1.0"></script>
@@ -16,19 +20,21 @@
         <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.1.0"></script>
         <script src="https://unpkg.com/@jspsych/plugin-fullscreen@2.1.0"></script>
         <script src="https://unpkg.com/@jspsych/plugin-survey@3.0.0"></script>
-        <link rel="stylesheet" href="https://unpkg.com/@jspsych/plugin-survey@3.0.0/css/survey.css" />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/@jspsych/plugin-survey@3.0.0/css/survey.css"
+        />
 
         <!-- To save data via DataPipe (for online experiments) -->
         <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe@0.5.0"></script>
 
         <!-- Custom scripts -->
+        <script src="fiction.js"></script>
         <script src="demographics.js"></script>
         <script src="questionnaires_aftertask.js"></script>
         <script src="questionnaires_beforetask.js"></script>
-        <script src="fiction.js"></script>
-        
-    
-      <style></style>
+
+        <style></style>
     </head>
 
     <body></body>
@@ -41,7 +47,7 @@
             show_progress_bar: true,
             on_finish: function () {
                 // jsPsych.data.displayData("json") // Display data in browser
-                    window.location = "https://realitybending.github.io/" // Redirect to lab website
+                window.location = "https://realitybending.github.io/" // Redirect to lab website
             },
         })
 
@@ -49,23 +55,22 @@
         const participantID = jsPsych.randomization.randomID(10)
 
         // // full screen
-        timeline.push(ConsentForm)
+        // timeline.push(ConsentForm)
 
-        // // Shuffle -----------------------------------------------------------------
-        // qs_beforetask = jsPsych.randomization.shuffleNoRepeats([
-        //     questionnaire_loneliness,
-        //     questionnaire_somatichealth,
-        //     questionnaire_mentalhealth,
-        //     questionnaire_phq4,
-        //     questionnaire_dejong,
-        //     questionnaire_ucla,
-        // ])
-        // qs_aftertask = jsPsych.randomization.shuffleNoRepeats([
-        //     questionnaire_mint,
-        //     questionnaire_bait,
-        //     questionnaire_iri,
-        //     questionnaire_seacs,
-        // ])
+        // Shuffle -----------------------------------------------------------------
+        qs_beforetask = jsPsych.randomization.shuffleNoRepeats([
+            questionnaire_somatichealth,
+            questionnaire_mentalhealth,
+            questionnaire_phq4,
+            questionnaire_dejong,
+            questionnaire_ucla,
+        ])
+        qs_aftertask = jsPsych.randomization.shuffleNoRepeats([
+            questionnaire_mint,
+            questionnaire_bait,
+            questionnaire_iri,
+            questionnaire_seacs,
+        ])
 
         // // Start -----------------------------------------------------------------
         // timeline.push(demographics_browser_info)
@@ -77,18 +82,23 @@
         // timeline.push(qs_beforetask[2])
         // timeline.push(qs_beforetask[3])
         // timeline.push(qs_beforetask[4])
-        // timeline.push(qs_beforetask[5])
 
         // // Task
+        timeline.push(task_instructions1)
+        timeline.push(task_preloadstims)
+        timeline.push(social_phase1)
+
+        // timeline.push(task_instructions2)
 
         // // Questionnaires - after task
         // timeline.push(questionnaire_instructions)
         // timeline.push(qs_aftertask[0])
         // timeline.push(qs_aftertask[1])
-        // timeline.push(qs_aftertask[2])      
-        // timeline.push(qs_aftertask[3])    
+        // timeline.push(qs_aftertask[2])
+        // timeline.push(qs_aftertask[3])
 
         // // // End
+        // timeline.push(demographics_endscreen)
         // timeline.push(experiment_feedback)
         // timeline.push(demographics_debriefing)
 
@@ -101,21 +111,7 @@
         // //     data_string: () => jsPsych.data.get().csv(),
         // // })
 
-        // timeline.push(demographics_endscreen)
-
-        timeline.push(social_preload)
-        timeline.push(social_instructions1)
-        timeline.push(social_phase1)
-        timeline.push(social_bluff_intro)
-        timeline.push(social_phase2)
-        timeline.push(social_admit_bluff)
-        timeline.push(social_likelihood_trivial)
-        timeline.push(social_likelihood_mental)
-        timeline.push(social_likelihood_romantic)
-
         // /* ----------------- Run the timeline ----------------- */
         jsPsych.run(timeline)
-
-
     </script>
 </html>
