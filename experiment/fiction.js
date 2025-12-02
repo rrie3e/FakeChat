@@ -21,120 +21,91 @@ var social_trialnumber = 1
 
 var text_ticks_1to7_social = ["1", "2", "3", "4", "5", "6", "7"]
 
-
 // VIGNETTE TEMPLATES ======================================================================
 
-var vignette_templates = [
+var vignettes = [
     {
         id: "romantic1",
         Topic: "Romantic",
         context_text:
             "The following screenshots are taken from a conversation posted on reddit following a thread discussing people's experiences with romantic apps. Users have provided their consent for their images to be used during this study, provided any identifiable information is made anonymous.",
-        images_AI: [
-            "101.png",
-        ],
-        images_Human: [
-            "102.png",
-        ],
+        images_AI: ["101.png"],
+        images_Human: ["102.png"],
     },
     {
         id: "romantic2",
         Topic: "Romantic",
         context_text:
             "The following screenshots are taken from a conversation posted on reddit following a thread discussing people's experiences with romantic apps. Users have provided their consent for their images to be used during this study, provided any identifiable information is made anonymous.",
-        images_AI: [
-            "201.png",
-        ],
-        images_Human: [
-            "202.png",
-        ],
+        images_AI: ["201.png"],
+        images_Human: ["202.png"],
     },
     {
         id: "mental1",
         Topic: "Mental",
         context_text:
             "The following screenshots are taken from a conversation posted on reddit following a thread discussing people's experiences with mental health support assistants. Users have provided their consent for their images to be used during this study, provided any identifiable information is made anonymous.",
-        images_AI: [
-            "301.png",
-        ],
-        images_Human: [
-            "302.png",
-        ],
+        images_AI: ["301.png"],
+        images_Human: ["302.png"],
     },
     {
         id: "mental2",
         Topic: "Mental",
-        context_text: 
-            "The following screenshots are taken from a conversation posted on reddit following a thread discussing people's experiences with mental health support assistants. Users have provided their consent for their images to be used during this study, provided any identifiable information is made anonymous.",       
-        images_AI: [
-            "401.png",
-        ],
-        images_Human: [
-            "402.png",
-        ],
-    },
-    {
-        id: "trivial1",
-        Topic: "Trivial",
         context_text:
-            "The following screenshots are taken from a conversation posted on reddit following a thread discussing people's experiences with travel planning assistants. Users have provided their consent for their images to be used during this study, provided any identifiable information is made anonymous.",
-        images_AI: [
-            "501.png",
-        ],
-        images_Human: [
-            "502.png",
-        ],
+            "The following screenshots are taken from a conversation posted on reddit following a thread discussing people's experiences with mental health support assistants. Users have provided their consent for their images to be used during this study, provided any identifiable information is made anonymous.",
+        images_AI: ["401.png"],
+        images_Human: ["402.png"],
     },
-    {
-        id: "trivial2",
-        Topic: "Trivial",
-        context_text:
-            "The following screenshots are taken from a conversation posted on reddit following a thread designed to help connect people to make new friends. It is designed for people to talk about their day-to-day experiences. Users have provided their consent for their images to be used during this study, provided any identifiable information is anonymised.",
-        images_AI: [
-            "601.png",
-        ],
-        images_Human: [
-            "602.png",
-        ],
-    },
+    // {
+    //     id: "trivial1",
+    //     Topic: "Trivial",
+    //     context_text:
+    //         "The following screenshots are taken from a conversation posted on reddit following a thread discussing people's experiences with travel planning assistants. Users have provided their consent for their images to be used during this study, provided any identifiable information is made anonymous.",
+    //     images_AI: ["501.png"],
+    //     images_Human: ["502.png"],
+    // },
+    // {
+    //     id: "trivial2",
+    //     Topic: "Trivial",
+    //     context_text:
+    //         "The following screenshots are taken from a conversation posted on reddit following a thread designed to help connect people to make new friends. It is designed for people to talk about their day-to-day experiences. Users have provided their consent for their images to be used during this study, provided any identifiable information is anonymised.",
+    //     images_AI: ["601.png"],
+    //     images_Human: ["602.png"],
+    // },
 ]
 
 /// Condition assignment ============================================
-function assignCondition(stimuli_list) {
-    let new_stimuli_list = []
-    // Loop through unique categories
-    for (let cat of [...new Set(stimuli_list.map((a) => a.Category))]) {
-        // Get all stimuli of this category
-        var cat_stimuli = stimuli_list.filter((a) => a.Category == cat)
+function assignCondition(vignettes) {
+    let new_list = []
 
-        // Shuffle cat_stimuli
-        cat_stimuli = shuffleArray(cat_stimuli)
+    // Loop through unique Topic values
+    for (let topic of [...new Set(vignettes.map((v) => v.Topic))]) {
+        let topic_stims = vignettes.filter((v) => v.Topic === topic)
+        shuffleArray(topic_stims)
 
-        // Assign conditions
         let conditions = ["Human", "AI"]
-        let half = Math.floor(cat_stimuli.length / 2)
-        let remainder = cat_stimuli.length % 2
+        let half = Math.floor(topic_stims.length / 2)
 
         let index = 0
-        // First assign evenly
-        for (let i = 0; i < 2; i++) {
-            for (let j = 0; j < half; j++) {
-                cat_stimuli[index].Condition = conditions[i]
+
+        // assign evenly
+        for (let c of conditions) {
+            for (let i = 0; i < half; i++) {
+                topic_stims[index].Condition = c
                 index++
             }
         }
 
-        // If odd number, assign the leftover randomly
-        if (remainder > 0) {
-            let shuffledConditions = shuffleArray(conditions)
-            cat_stimuli[index].Condition = shuffledConditions[0]
-            index++
+        // leftover (odd number)
+        if (topic_stims.length % 2 !== 0) {
+            topic_stims[index].Condition =
+                conditions[Math.floor(Math.random() * 2)]
         }
 
-        // Add to new_stimuli_list
-        new_stimuli_list.push(...cat_stimuli)
+        new_list.push(...topic_stims)
     }
-    return shuffleArray(new_stimuli_list)
+
+    return shuffleArray(new_list)
 }
 
 // Function used to insert catch-trials ("what was the topic?") in some trials
@@ -147,12 +118,22 @@ function generateRandomNumbers(min, max, N) {
 }
 
 // Variables ===================================================================
-var fiction_trialnumber = 1
-stimuli = assignCondition(stimuli_list)
+var vignettes_trialnumber = 1
+stimuli = assignCondition(vignettes)
+for (let v of stimuli) {
+    v.Stimulus = v.Condition === "AI" ? v.images_AI[0] : v.images_Human[0]
+}
 
 // We make 2 catch trials (always starting from 2 = the first trial) - attention checks
-catch_trials = [2].concat(generateRandomNumbers(1, stimuli_list.length, 2))
-
+catch_trials = [2].concat(generateRandomNumbers(1, vignettes.length, 2))
+var task_preloadstims = {
+    type: jsPsychPreload,
+    images: vignettes.flatMap((v) => [
+        ...v.images_AI.map((f) => "stimuli/" + f),
+        ...v.images_Human.map((f) => "stimuli/" + f),
+    ]),
+    message: "Loading stimuli...",
+}
 
 // INSTRUCTIONS ======================================================================
 
@@ -169,16 +150,17 @@ const task_instructions1 = {
                         type: "html",
                         name: "Instructions1",
                         html: `
-<div style="display: flex; justify-content: space-between; align-items: flex-start;">
-    <h1 style="margin: 0;">Instructions</h1>
-</div>
-<h2>Welcome</h2>
-<p>The following study is interested in looking at social interactions from a range of sources.</p>
-<p>You will observe several conversations over the next few slides.</p>
-<p>Imagine you are participating in the interaction while reading the dialogue.</p>
-<p>After each interaction, you will be prompted with a few questions asking about your experience.</p>
-<p><b>If at any point you are uncomfortable, you can withdraw from the study by closing the tab.</b></p>
-`,
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                    <h1 style="margin: 0;">Instructions</h1>
+                                </div>
+                                <h2>Welcome</h2>
+                                <p>The following study is interested in looking at social interactions from a range of sources.</p>
+                                <p>You will observe several conversations over the next few slides.</p>
+                                <p>Imagine you are participating in the interaction while reading the dialogue.</p>
+                                <p>After each interaction, you will be prompted with a few questions asking about your experience.</p>
+                                <p><b>If at any point you are uncomfortable, you can withdraw from the study by closing the tab.</b></p>
+                                </div>
+                                `,
                     },
                 ],
             },
@@ -190,7 +172,7 @@ const task_instructions2 = {
     type: jsPsychSurvey,
     data: { screen: "task_instructions2" },
     on_finish: function () {
-        fiction_trialnumber = 1 // Reset trial counter
+        vignettes_trialnumber = 1 // Reset trial counter
     },
     survey_json: {
         showQuestionNumbers: false,
@@ -221,12 +203,6 @@ const task_instructions2 = {
     },
 }
 
-var task_preloadstims = {
-    type: jsPsychPreload,
-    images: stimuli_list.map((a) => "stimuli/" + a.Item),
-    message: "Please wait while the experiment is being loaded (it can take a few minutes)",
-}
-
 // ======================================================================
 // FIRST PASS: SCENARIO INTRO + IMAGE + RATINGS (+ OPTIONAL ATTENTION CHECK)
 // ======================================================================
@@ -235,7 +211,6 @@ var task_preloadstims = {
 var vignette_intro = {
     type: jsPsychSurvey,
     survey_json: function () {
-
         var context_text = jsPsych.evaluateTimelineVariable("context_text")
         return {
             showQuestionNumbers: false,
@@ -248,7 +223,9 @@ var vignette_intro = {
                             name: "VignetteIntro",
                             html:
                                 "<div style='max-width:800px; margin:auto; text-align:left;'>" +
-                                "<p>" + context_text + "</p>" +
+                                "<p>" +
+                                context_text +
+                                "</p>" +
                                 "<p>This is a conversation. Please imagine that you are taking part in this interaction.</p>" +
                                 "</div>",
                         },
@@ -286,131 +263,113 @@ var social_showimage1 = {
             condition: jsPsych.evaluateTimelineVariable("Condition"),
             topic: jsPsych.evaluateTimelineVariable("Topic"),
             stimulus: jsPsych.evaluateTimelineVariable("Stimulus"),
-            trial_number: social_trialnumber,
+            trial_number: vignettes_trialnumber,
         }
     },
     on_finish: function () {
-        social_trialnumber += 1
+        vignettes_trialnumber += 1
     },
 }
 
-// Base rating screen after each vignette (no topic attention check)
-var social_ratings1_base = {
-    type: jsPsychSurvey,
-    survey_json: function () {
-        return {
-            goNextPageAutomatic: false,
-            showQuestionNumbers: false,
-            showNavigationButtons: true,
-            title:
-                "Conversation " +
-                (social_trialnumber - 1) +
-                "/" +
-                social_stimuli.length,
-            pages: [
-                {
-                    elements: [
-                        // responsive box like your example, to fix width
-                        {
-                            type: "html",
-                            name: "Box",
-                            html: `
+vignette_scales1 = [
+    // Empty HTML element used to specify the width of the sliders
+    {
+        type: "html",
+        html: `
 <p class="responsive-box-for-survey"> </p>
-<p>On a scale of 1 to 7 (1 = not at all; 7 = extremely), please indicate how strongly you agree with the following statements.</p>
 <style>
   .responsive-box-for-survey {
-    width: 100%;
+    width: 100%;      /* default: take full screen width */
     height: 1px;
   }
   @media (min-width: 600px) {
     .responsive-box-for-survey {
-      width: 600px;
+      width: 600px;   /* fixed width once screen is ≥600px */
     }
   }
 </style>`,
-                        },
-                        {
-                            type: "slider",
-                            name: "TrustPartner",
-                            title: "I can trust the interaction partner.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                        {
-                            type: "slider",
-                            name: "EmotionAwareness",
-                            title:
-                                "The interaction partner seemed aware of my emotions in the conversation.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                        {
-                            type: "slider",
-                            name: "RealSocialBeing",
-                            title:
-                                "The interaction partner seemed like a real social being rather than just text on a screen.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                        {
-                            type: "slider",
-                            name: "ImaginedSelf",
-                            title:
-                                "I was able to imagine myself in this conversation.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                        {
-                            type: "slider",
-                            name: "ComfortSharing",
-                            title:
-                                "If I were in this conversation, I would feel comfortable sharing personal information with this partner.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                    ],
-                },
-            ],
-        }
     },
-    data: {
-        screen: "social_ratings1",
-        attention_check: false,
+    {
+        type: "slider",
+        name: "TrustPartner",
+        title: "I can trust the interaction partner.",
+        isRequired: true,
+        min: 1,
+        max: 7,
+        step: 1,
+        customLabels: [
+            { value: 1, text: "Not at all" },
+            { value: 7, text: "Extremely" },
+        ],
     },
-}
+    {
+        type: "slider",
+        name: "EmotionAwareness",
+        title: "The interaction partner seemed aware of my emotions in the conversation.",
+        isRequired: true,
+        min: 1,
+        max: 7,
+        step: 1,
+        customLabels: [
+            { value: 1, text: "Not at all" },
+            { value: 7, text: "Extremely" },
+        ],
+    },
+    {
+        type: "slider",
+        name: "RealSocialBeing",
+        title: "The interaction partner seemed like a real social being rather than just text on a screen.",
+        isRequired: true,
+        min: 1,
+        max: 7,
+        step: 1,
+        customLabels: [
+            { value: 1, text: "Not at all" },
+            { value: 7, text: "Extremely" },
+        ],
+    },
+    {
+        type: "slider",
+        name: "ImaginedSelf",
+        title: "I was able to imagine myself in this conversation.",
+        isRequired: true,
+        min: 1,
+        max: 7,
+        step: 1,
+        customLabels: [
+            { value: 1, text: "Not at all" },
+            { value: 7, text: "Extremely" },
+        ],
+    },
+    {
+        type: "slider",
+        name: "ComfortSharing",
+        title: "If I were in this conversation, I would feel comfortable sharing personal information with this partner.",
+        isRequired: true,
+        min: 1,
+        max: 7,
+        step: 1,
+        customLabels: [
+            { value: 1, text: "Not at all" },
+            { value: 7, text: "Extremely" },
+        ],
+    },
+    // {
+    //     type: "radiogroup",
+    //     name: "Attention_Topic",
+    //     title: "What was the main theme of this conversation?",
+    //     isRequired: true,
+    //     choices: [
+    //         "Romantic relationships",
+    //         "Mental wellbeing",
+    //         "Everyday / trivial activities",
+    //         "I am not sure",
+    //     ],
+    // },
+]
 
 // Rating screen + TOPIC attention check (for selected trials)
-var social_ratings1_withcheck = {
+var vignette_ratings1 = {
     type: jsPsychSurvey,
     survey_json: function () {
         return {
@@ -419,148 +378,62 @@ var social_ratings1_withcheck = {
             showNavigationButtons: true,
             title:
                 "Conversation " +
-                (social_trialnumber - 1) +
+                (vignettes_trialnumber - 1) +
                 "/" +
-                social_stimuli.length,
+                vignettes.length,
+            pages: [{ elements: vignette_scales1 }],
+        }
+    },
+    data: {
+        screen: "vignette_ratings1",
+    },
+}
+
+var vignette_ratings1_check = {
+    type: jsPsychSurvey,
+    survey_json: function () {
+        return {
+            goNextPageAutomatic: false,
+            showQuestionNumbers: false,
+            showNavigationButtons: true,
+            title:
+                "Conversation " +
+                (vignettes_trialnumber - 1) +
+                "/" +
+                vignettes.length,
             pages: [
                 {
-                    elements: [
+                    elements: vignette_scales1.concat([
                         {
-                            type: "html",
-                            name: "Box",
-                            html: `
-<p class="responsive-box-for-survey"> </p>
-<p>On a scale of 1 to 7 (1 = not at all; 7 = extremely), please indicate how strongly you agree with the following statements.</p>
-<style>
-  .responsive-box-for-survey {
-    width: 100%;
-    height: 1px;
-  }
-  @media (min-width: 600px) {
-    .responsive-box-for-survey {
-      width: 600px;
-    }
-  }
-</style>`,
-                        },
-                        {
-                            type: "slider",
-                            name: "TrustPartner",
-                            title: "I can trust the interaction partner.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                        {
-                            type: "slider",
-                            name: "EmotionAwareness",
-                            title:
-                                "The interaction partner seemed aware of my emotions in the conversation.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                        {
-                            type: "slider",
-                            name: "RealSocialBeing",
-                            title:
-                                "The interaction partner seemed like a real social being rather than just text on a screen.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                        {
-                            type: "slider",
-                            name: "ImaginedSelf",
-                            title:
-                                "I was able to imagine myself in this conversation.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                        {
-                            type: "slider",
-                            name: "ComfortSharing",
-                            title:
-                                "If I were in this conversation, I would feel comfortable sharing personal information with this partner.",
-                            isRequired: true,
-                            min: 1,
-                            max: 7,
-                            step: 1,
-                            customLabels: [
-                                { value: 1, text: "Not at all" },
-                                { value: 7, text: "Extremely" },
-                            ],
-                        },
-                        {
+                            title: "What was the theme of the conversation?",
+                            name: "AttentionCheck",
                             type: "radiogroup",
-                            name: "Attention_Topic",
-                            title: "What was the main theme of this conversation?",
-                            isRequired: true,
                             choices: [
-                                "Romantic relationships",
-                                "Mental wellbeing",
-                                "Everyday / trivial activities",
-                                "I am not sure",
+                                "Romantic",
+                                "Mental Health",
+                                "Everyday / Trivial",
+                                "I don't remember",
                             ],
+                            showOtherItem: false,
+                            isRequired: true,
+                            colCount: 0,
                         },
-                    ],
+                    ]),
                 },
             ],
         }
     },
     data: {
-        screen: "social_ratings1",
-        attention_check: true,
-    },
-    on_finish: function (data) {
-        var response = data.response || {}
-        var answer = response.Attention_Topic
-        var topic = jsPsych.evaluateTimelineVariable("Topic")
-        var correct = false
-
-        if (answer === "Romantic relationships" && topic === "Romantic") {
-            correct = true
-        } else if (answer === "Mental wellbeing" && topic === "Mental") {
-            correct = true
-        } else if (
-            answer === "Everyday / trivial activities" &&
-            topic === "Trivial"
-        ) {
-            correct = true
-        }
-
-        data.attention_correct = correct
+        screen: "vignettes_ratings1",
     },
 }
 
-// Conditional wrappers, like in your fiction task
-var t_social_ratings_withcheck = {
-    timeline: [social_ratings1_withcheck],
+// The rating screens are created as conditional timelines to allow for dynamic changes
+// (with or without the attention check question) depending on the trial number
+var t_vignette_ratings1_check = {
+    timeline: [vignette_ratings1_check],
     conditional_function: function () {
-        // Current conversation index = social_trialnumber - 1
-        var conv_index = social_trialnumber - 1
-        if (social_attention_trials.includes(conv_index)) {
+        if (catch_trials.includes(vignettes_trialnumber)) {
             return true
         } else {
             return false
@@ -568,11 +441,10 @@ var t_social_ratings_withcheck = {
     },
 }
 
-var t_social_ratings_nocheck = {
-    timeline: [social_ratings1_base],
+var t_vignette_ratings1_nocheck = {
+    timeline: [vignette_ratings1],
     conditional_function: function () {
-        var conv_index = social_trialnumber - 1
-        if (social_attention_trials.includes(conv_index)) {
+        if (catch_trials.includes(vignettes_trialnumber)) {
             return false
         } else {
             return true
@@ -582,12 +454,12 @@ var t_social_ratings_nocheck = {
 
 // First-pass block: all 6 vignettes in this (shuffled) order
 var social_phase1 = {
-    timeline_variables: social_stimuli,
+    timeline_variables: vignettes,
     timeline: [
         vignette_intro,
         social_showimage1,
-        t_social_ratings_withcheck,
-        t_social_ratings_nocheck,
+        t_vignette_ratings1_check,
+        t_vignette_ratings1_nocheck,
     ],
     randomize_order: false, // order already shuffled by assignSocialConditions
 }
@@ -679,7 +551,8 @@ var social_belief_slider = {
                             type: "slider",
                             name: "Belief_AI_Human",
                             title: "Based on this conversation, I believe the interaction partner is...",
-                            description: "Move the slider towards ‘Artificial agent’ or ‘Human’ to reflect your belief.",
+                            description:
+                                "Move the slider towards ‘Artificial agent’ or ‘Human’ to reflect your belief.",
                             isRequired: true,
                             min: -100,
                             max: 100,
@@ -700,7 +573,7 @@ var social_belief_slider = {
 }
 
 var social_phase2 = {
-    timeline_variables: social_stimuli,
+    timeline_variables: vignettes,
     timeline: [social_belief_image, social_belief_slider],
     randomize_order: false, // same order again
 }
@@ -774,8 +647,7 @@ function social_domain_likelihood(domain_id, domain_label, domain_text_suffix) {
                             {
                                 type: "slider",
                                 name: domain_id + "_CloseFriend",
-                                title:
-                                    "How likely are you to carry out a conversation similar to the vignettes with a <b>close friend</b>?",
+                                title: "How likely are you to carry out a conversation similar to the vignettes with a <b>close friend</b>?",
                                 isRequired: true,
                                 min: -100,
                                 max: 100,
@@ -788,8 +660,7 @@ function social_domain_likelihood(domain_id, domain_label, domain_text_suffix) {
                             {
                                 type: "slider",
                                 name: domain_id + "_AI_General",
-                                title:
-                                    "How likely are you to carry out a conversation similar to the vignettes with an <b>AI</b> (in general)?",
+                                title: "How likely are you to carry out a conversation similar to the vignettes with an <b>AI</b> (in general)?",
                                 isRequired: true,
                                 min: -100,
                                 max: 100,
@@ -802,8 +673,7 @@ function social_domain_likelihood(domain_id, domain_label, domain_text_suffix) {
                             {
                                 type: "slider",
                                 name: domain_id + "_AI_Alone",
-                                title:
-                                    "How likely are you to carry out a conversation similar to the vignettes with an <b>AI when feeling alone</b>?",
+                                title: "How likely are you to carry out a conversation similar to the vignettes with an <b>AI when feeling alone</b>?",
                                 isRequired: true,
                                 min: -100,
                                 max: 100,
